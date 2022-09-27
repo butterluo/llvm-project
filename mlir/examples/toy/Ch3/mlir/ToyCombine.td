@@ -29,7 +29,7 @@ include "toy/Ops.td"
 // Basic Pattern-Match and Rewrite
 //===----------------------------------------------------------------------===//
 
-// Reshape(Reshape(x)) = Reshape(x)
+// Reshape(Reshape(x)) = Reshape(x) //BTBT 即将ReshapeOp(ReshapeOp $arg)替换为 ReshapeOp $arg。对于多次相同的张量变形操作，执行一次即可
 def ReshapeReshapeOptPattern : Pat<(ReshapeOp(ReshapeOp $arg)),
                                    (ReshapeOp $arg)>;
 
@@ -37,7 +37,7 @@ def ReshapeReshapeOptPattern : Pat<(ReshapeOp(ReshapeOp $arg)),
 // Pattern-Match and Rewrite using Native Code Call
 //===----------------------------------------------------------------------===//
 
-// Native Code Calls may be used for more complex transformations using inline
+// *Native Code Calls* may be used for more complex transformations using inline
 // C++ and C++ helper functions.
 
 // Reshape(Constant(x)) = x'
@@ -51,10 +51,10 @@ def FoldConstantReshapeOptPattern : Pat<
 // Pattern-Match and Rewrite with Constraints
 //===----------------------------------------------------------------------===//
 
-// DRR allows for constraint checking when the transformation is conditional
+// DRR allows for *constraint* checking when the transformation is conditional
 // on operand properties.
 
-// Reshape(x) = x, where input and output shapes are identical
+// Reshape(x) = x, where input and output shapes are identical // BTBT 即当0.getType()与1.getType()相同时即为冗余，使用操作数$arg代替
 def TypesAreIdentical : Constraint<CPred<"$0.getType() == $1.getType()">>;
 def RedundantReshapeOptPattern : Pat<
   (ReshapeOp:$res $arg), (replaceWithValue $arg),

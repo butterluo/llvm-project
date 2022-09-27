@@ -20,3 +20,14 @@ def main() {
 # CHECK-NEXT:    [[VAL_2:%.*]] = toy.generic_call @transpose_transpose([[VAL_1]]) : (tensor<2x3xf64>) -> tensor<*xf64>
 # CHECK-NEXT:    toy.print [[VAL_2]] : tensor<*xf64>
 # CHECK-NEXT:    toy.return
+
+
+# 参考: https://mp.weixin.qq.com/s/3N9DK7aQtjoLgs-s0lP-jg
+# examples\toy\CMakeLists.txt
+#  > examples\toy\Ch3\CMakeLists.txt <-提供*.td生成的cpp examples\toy\Ch3\include\toy\CMakeLists.txt
+# ./toyc-ch3 ../../mlir/test/Examples/Toy/Ch3/transpose_transpose.toy -emit=mlir -mlir-print-debuginfo
+# toyc.cpp.main()->dumpMLIR()->mlirGen()->'mlirGen(ExprAST'(???怎么调到这里) . 首先有一个MLIRGen函数负责遍历AST。具体在mlir/examples/toy/Ch3/mlir/MLIRGen.cpp文件中实现，里面有一个mlirGen函数
+#  < 双重转置的优化是在examples\toy\Ch3\mlir\ToyCombine.cpp中用cpp定义与注册的(其实也可以用td)
+#  < examples\toy\Ch3\CMakeLists.txt在生成toyc-ch3时,用的就是遵从Dialect.h.inc接口,基于Dialect.cpp.inc做部分客户化后的Dialect.cpp,而不是直接用生成的cpp
+#  < 对生成的toy/Dialect.cpp.inc的客户化写在examples\toy\Ch3\mlir\Dialect.cpp中. //BTBT 注意include生成cpp的位置 //参考Ops.td和 mlir\Dialect.cpp是如何做客户化的
+#  < 根据examples\toy\Ch3\include\toy\CMakeLists.txt Ops.td 会生成cpp文件 Ops.h.inc, Ops.cpp.inc, Dialect.h.inc, Dialect.cpp.inc

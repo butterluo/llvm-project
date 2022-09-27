@@ -14,7 +14,7 @@
 #define SHAPE_INFERENCE_INTERFACE
 
 include "mlir/IR/OpBase.td"
-
+//BTBT ShapeInferenceOpInterface接口继承了OpInterface，该继承接收要赋予生成的 C++ 接口类的名称"ShapeInference"作为模板参数
 def ShapeInferenceOpInterface : OpInterface<"ShapeInference"> {
   let description = [{
     Interface to access a registered method to infer the return types for an

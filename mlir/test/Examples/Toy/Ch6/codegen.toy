@@ -29,3 +29,17 @@ def main() {
 # CHECK-NEXT:    [[VAL_10:%.*]] = toy.generic_call @multiply_transpose([[VAL_8]], [[VAL_6]]) : (tensor<2x3xf64>, tensor<2x3xf64>) -> tensor<*xf64>
 # CHECK-NEXT:    toy.print [[VAL_10]] : tensor<*xf64>
 # CHECK-NEXT:    toy.return
+
+#  参考: https://mp.weixin.qq.com/s/ve2l3luRzIeDwG4PHjhDlQ [https://app.yinxiang.com/shard/s30/nl/5421460/0de907cf-eaba-46a7-80a4-7f6293ea5946]
+# ch6最终要把各种dialect lower到llvm dialect
+# Dialect转换框架支持传递Lowering，不需要直接Lowering为LLVM Dialect。通过应用传递Lowering可以应用多种模式来使得操作合法化（合法化的意思在这里指的就是完全Lowering到LLVM Dialect）。
+# 传递Lowering在这里体现为将toy.print先Lowering到循环嵌套Dialect里面，而不是直接Lowering为LLVM Dialect。
+#  examples\toy\CMakeLists.txt
+#   > examples\toy\Ch4\CMakeLists.txt <-提供*.td生成的cpp examples\toy\Ch4\include\toy\CMakeLists.txt
+#  ./toyc-ch4 ../../mlir/test\Examples\Toy\Ch4\shape_inference.mlir -emit=mlir -mlir-print-debuginfo
+#  toyc.cpp.main()->dumpMLIR()->mlirGen()->'mlirGen(ExprAST'
+
+# examples\toy\Ch6\mlir\LowerToLLVM.cpp 中PrintOpLowering.matchAndRewrite()->getOrInsertPrintf()将toy.print lower 到 llvm
+# LowerToLLVM.cpp 的 ToyToLLVMLoweringPass 负责定义那些要转换,怎么转换,以及执行转换 (见代码注释) 所有dialect最终都要转成llvm
+# toyc.cpp 'pm.addPass(mlir::toy::createLowerToLLVMPass())' 执行到llvm的转换
+# toyc.cpp runJit()函数调用llvm的设施去执行转换出来的llvm IR

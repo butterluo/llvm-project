@@ -138,7 +138,7 @@ int dumpMLIR() {
 
   if (isLoweringToAffine) {
     // Partially lower the toy dialect.
-    pm.addPass(mlir::toy::createLowerToAffinePass());
+    pm.addPass(mlir::toy::createLowerToAffinePass());          //BTBT createLowerToAffinePass函数在Ch5\mlir\LowerToAffineLoops.cpp中
 
     // Add a few cleanups post lowering.
     mlir::OpPassManager &optPM = pm.nest<mlir::func::FuncOp>();
@@ -147,8 +147,8 @@ int dumpMLIR() {
 
     // Add optimizations if enabled.
     if (enableOpt) {
-      optPM.addPass(mlir::createLoopFusionPass());
-      optPM.addPass(mlir::createAffineScalarReplacementPass());
+      optPM.addPass(mlir::createLoopFusionPass());               //BTBT 相同循环边界融合优化
+      optPM.addPass(mlir::createAffineScalarReplacementPass());  //BTBT 消除循环中冗余的内存分配
     }
   }
 

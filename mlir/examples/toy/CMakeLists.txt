@@ -1,4 +1,4 @@
-add_custom_target(Toy)
+add_custom_target(Toy)          #https://blog.csdn.net/MacKendy/article/details/122693478
 set_target_properties(Toy PROPERTIES FOLDER Examples)
 
 macro(add_toy_chapter name)

@@ -116,7 +116,7 @@ int dumpMLIR() {
     mlir::PassManager pm(&context);
     // Apply any generic pass manager command line options and run the pipeline.
     applyPassManagerCLOptions(pm);
-
+    //BTBT 在主程序中将基于规范化框架的优化添加到运行流程里
     // Add a run of the canonicalizer to optimize the mlir module.
     pm.addNestedPass<mlir::toy::FuncOp>(mlir::createCanonicalizerPass());
     if (mlir::failed(pm.run(*module)))

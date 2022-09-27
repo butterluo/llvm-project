@@ -62,3 +62,20 @@ toy.func @main() {
 // OPT:         toy.print [[VAL_6]] : memref<3x2xf64>
 // OPT:         memref.dealloc [[VAL_7]] : memref<2x3xf64>
 // OPT:         memref.dealloc [[VAL_6]] : memref<3x2xf64>
+
+
+
+
+// 参考: https://mp.weixin.qq.com/s/3hAf7zxEKwRvnVAKhziTmA [https://app.yinxiang.com/shard/s30/nl/5421460/5f27ab35-3283-4699-b72b-27a66bfd61b8]
+//在Chapter3里面我们学到了如何在MLIR里面实现表达式重写，但上面也有一个非常明显的问题：我们为Toy语言实现的Pass在其它的Dialect抽象中没办法重用，
+//因为这里只是针对Toy语言的一些Operation的特化操作，如果为每种Dialect实现每种转化会导致大量重复代码。所以，这一节以两个例子为例讲解如何在MLIR中实现泛化的表达式。
+// examples\toy\CMakeLists.txt
+//  > examples\toy\Ch4\CMakeLists.txt <-提供*.td生成的cpp examples\toy\Ch4\include\toy\CMakeLists.txt
+// ./toyc-ch4 ../../mlir/test\Examples\Toy\Ch4\shape_inference.mlir -emit=mlir -mlir-print-debuginfo
+// toyc.cpp.main()->dumpMLIR()->mlirGen()->'mlirGen(ExprAST'
+
+// examples/toy/Ch5/mlir/LowerToAffineLoops.cpp ToyToAffineLoweringPass::runOnOperation()定义那些op要转换,如何转换,那些不用转换,注册转换类,并对整个module执行dialect转换
+// examples/toy/Ch5/mlir/LowerToAffineLoops.cpp 上述负责具体转换的都是ConversionPattern的子类,要实现matchAndRewrite,参考TransposeOpLowering.matchAndRewrite()-> lowerOpToLoops()如何把transpose转成affine dialect
+// 由于toy都转为了affine,memref等底层dialect,所以没有转的toy.print op要加上对F64MemRef输入的支持,见examples\toy\Ch5\include\toy\Ops.td:266
+// toyc.cpp中加入负责lower转换的pass,'pm.addPass(mlir::toy::createLowerToAffinePass())'
+//         也添加了createLoopFusionPass和createAffineScalarReplacementPass (具体功能见代码注释) 另外 createMemRefDataFlowOptPass可对于MemRef的数据流做优化

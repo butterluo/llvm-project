@@ -70,7 +70,7 @@ def ConstantOp : Toy_Op<"constant", [NoSideEffect]> {
 
   // Add custom build methods for the constant operation. These method populates
   // the `state` that MLIR uses to create operations, i.e. these are used when
-  // using `builder.create<ConstantOp>(...)`.
+  // using `builder.create<ConstantOp>(...)`. //BTBT 看examples\toy\Ch2\mlir\Dialect.cpp的ConstantOp::build()是如何客户化的
   let builders = [
     // Build a constant with a given constant tensor value.
     OpBuilder<(ins "DenseElementsAttr":$value), [{
@@ -102,7 +102,7 @@ def AddOp : Toy_Op<"add"> {
   // Indicate that the operation has a custom parser and printer method.
   let hasCustomAssemblyFormat = 1;
 
-  // Allow building an AddOp with from the two input operands.
+  // Allow building an AddOp with from the two input operands.//BTBT 看examples\toy\Ch2\mlir\Dialect.cpp的AddOp::build()是如何客户化的
   let builders = [
     OpBuilder<(ins "Value":$lhs, "Value":$rhs)>
   ];
@@ -137,7 +137,7 @@ def FuncOp : Toy_Op<"func", [
     TypeAttrOf<FunctionType>:$function_type
   );
   let regions = (region AnyRegion:$body);
-
+  //BTBT 看examples\toy\Ch2\mlir\Dialect.cpp的 FuncOp::build()是如何客户化的
   let builders = [OpBuilder<(ins
     "StringRef":$name, "FunctionType":$type,
     CArg<"ArrayRef<NamedAttribute>", "{}">:$attrs)
@@ -190,7 +190,7 @@ def GenericCallOp : Toy_Op<"generic_call"> {
     $callee `(` $inputs `)` attr-dict `:` functional-type($inputs, results)
   }];
 
-  // Add custom build methods for the generic call operation.
+  // Add custom build methods for the generic call operation.  //BTBT 看examples\toy\Ch2\mlir\Dialect.cpp的 GenericCallOp::build()是如何客户化的 //BTBT 要在build()里对state做初始化 //BTBT ??? 所有op都要实现build么
   let builders = [
     OpBuilder<(ins "StringRef":$callee, "ArrayRef<Value>":$arguments)>
   ];
@@ -322,7 +322,7 @@ def TransposeOp : Toy_Op<"transpose"> {
     OpBuilder<(ins "Value":$input)>
   ];
 
-  // Invoke a static verify method to verify this transpose operation.
+  // Invoke a static verify method to verify this transpose operation. //BTBT 看examples\toy\Ch2\mlir\Dialect.cpp的 TransposeOp::verify() 如何客户化 ??? 这是所有Op都要做verify的客户化么
   let hasVerifier = 1;
 }
 

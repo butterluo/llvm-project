@@ -11,7 +11,7 @@ add_toy_chapter(toyc-ch2
   mlir/MLIRGen.cpp
   mlir/Dialect.cpp
 
-  DEPENDS
+  DEPENDS            #表示该target toyc-ch2依赖于ToyCh2OpsIncGen的编译完成
   ToyCh2OpsIncGen
 
   )

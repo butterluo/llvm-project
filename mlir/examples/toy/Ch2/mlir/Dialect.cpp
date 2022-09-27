@@ -22,7 +22,7 @@ using namespace mlir;
 using namespace mlir::toy;
 
 #include "toy/Dialect.cpp.inc"
-
+//BTBT 注意include生成cpp的位置
 //===----------------------------------------------------------------------===//
 // ToyDialect
 //===----------------------------------------------------------------------===//
@@ -306,3 +306,4 @@ mlir::LogicalResult TransposeOp::verify() {
 
 #define GET_OP_CLASSES
 #include "toy/Ops.cpp.inc"
+//BTBT 注意include生成cpp的位置

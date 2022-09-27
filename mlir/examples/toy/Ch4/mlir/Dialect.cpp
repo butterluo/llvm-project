@@ -29,7 +29,7 @@ using namespace mlir::toy;
 //===----------------------------------------------------------------------===//
 
 /// This class defines the interface for handling inlining with Toy
-/// operations.
+/// operations. //BTBT 定义了内联Pass接口和表达式变形的规则
 struct ToyInlinerInterface : public DialectInlinerInterface {
   using DialectInlinerInterface::DialectInlinerInterface;
 
@@ -37,19 +37,19 @@ struct ToyInlinerInterface : public DialectInlinerInterface {
   // Analysis Hooks
   //===--------------------------------------------------------------------===//
 
-  /// All call operations within toy can be inlined.
+  /// All call operations within toy can be inlined.//BTBT 检查给定的可调用操作callable内联到给定调用call中是否合法，检查是否可以内联
   bool isLegalToInline(Operation *call, Operation *callable,
                        bool wouldBeCloned) const final {
     return true;
   }
 
-  /// All operations within toy can be inlined.
+  /// All operations within toy can be inlined.//BTBT 检查给定的操作是否合法地内联到给定的区域。
   bool isLegalToInline(Operation *, Region *, bool,
                        BlockAndValueMapping &) const final {
     return true;
   }
 
-  // All functions within toy can be inlined.
+  // All functions within toy can be inlined.//BTBT ??? 检查给定的func是否合法地内联到给定的区域。
   bool isLegalToInline(Region *, Region *, bool,
                        BlockAndValueMapping &) const final {
     return true;
@@ -60,7 +60,7 @@ struct ToyInlinerInterface : public DialectInlinerInterface {
   //===--------------------------------------------------------------------===//
 
   /// Handle the given inlined terminator(toy.return) by replacing it with a new
-  /// operation as necessary.
+  /// operation as necessary.//BTBT ??? 只是处理toy.return，将返回操作的操作数it.index()直接用返回值it.value()代替（这里没太懂?
   void handleTerminator(Operation *op,
                         ArrayRef<Value> valuesToRepl) const final {
     // Only "toy.return" needs to be handled here.
@@ -76,7 +76,7 @@ struct ToyInlinerInterface : public DialectInlinerInterface {
   /// from this dialect, and a callable region. This method should generate an
   /// operation that takes 'input' as the only operand, and produces a single
   /// result of 'resultType'. If a conversion can not be generated, nullptr
-  /// should be returned.
+  /// should be returned.//使得在inline函数的参数与输入的数据的类型不一致时,会尝试cast op,以便能顺利inline
   Operation *materializeCallConversion(OpBuilder &builder, Value input,
                                        Type resultType,
                                        Location conversionLoc) const final {
@@ -95,7 +95,7 @@ void ToyDialect::initialize() {
 #define GET_OP_LIST
 #include "toy/Ops.cpp.inc"
       >();
-  addInterfaces<ToyInlinerInterface>();
+  addInterfaces<ToyInlinerInterface>();//BTBT 注册内联pass接口
 }
 
 //===----------------------------------------------------------------------===//
@@ -246,7 +246,7 @@ void AddOp::inferShapes() { getResult().setType(getOperand(0).getType()); }
 //===----------------------------------------------------------------------===//
 
 /// Infer the output shape of the CastOp, this is required by the shape
-/// inference interface.
+/// inference interface.//BTBT 针对添加了ShapeInferenceOpInterface特征的op,实现ShapeInferenceOpInterface.inferShapes()
 void CastOp::inferShapes() { getResult().setType(getOperand().getType()); }
 
 /// Returns true if the given set of input and result types are compatible with
@@ -320,13 +320,13 @@ void GenericCallOp::build(mlir::OpBuilder &builder, mlir::OperationState &state,
 }
 
 /// Return the callee of the generic call operation, this is required by the
-/// call interface.
+/// call interface.//BTBT 实现CallOpInterfaces的方法,返回泛化调用Operation的被调用方
 CallInterfaceCallable GenericCallOp::getCallableForCallee() {
   return (*this)->getAttrOfType<SymbolRefAttr>("callee");
 }
 
 /// Get the argument operands to the called function, this is required by the
-/// call interface.
+/// call interface.//BTBT 获取被调用函数的参数操作数。
 Operation::operand_range GenericCallOp::getArgOperands() { return getInputs(); }
 
 //===----------------------------------------------------------------------===//

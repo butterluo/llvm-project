@@ -170,7 +170,7 @@ int loadAndProcessMLIR(mlir::MLIRContext &context,
 
   if (isLoweringToLLVM) {
     // Finish lowering the toy IR to the LLVM dialect.
-    pm.addPass(mlir::toy::createLowerToLLVMPass());
+    pm.addPass(mlir::toy::createLowerToLLVMPass());   //BTBT 添加转成llvm的pass,该pass在examples\toy\Ch6\mlir\LowerToLLVM.cpp
   }
 
   if (mlir::failed(pm.run(*module)))
@@ -228,7 +228,7 @@ int runJit(mlir::ModuleOp module) {
 
   // Register the translation from MLIR to LLVM IR, which must happen before we
   // can JIT-compile.
-  mlir::registerLLVMDialectTranslation(*module->getContext());
+  mlir::registerLLVMDialectTranslation(*module->getContext());            //BTBT 可能是将LLVM Dialect表达式翻译成LLVM IR，在JIT编译的时候起到缓存作用，也就是说下次执行的时候不会重复执行上面的各种MLIR表达式变换。
 
   // An optimization pipeline to use within the execution engine.
   auto optPipeline = mlir::makeOptimizingTransformer(
@@ -237,7 +237,7 @@ int runJit(mlir::ModuleOp module) {
 
   // Create an MLIR execution engine. The execution engine eagerly JIT-compiles
   // the module.
-  mlir::ExecutionEngineOptions engineOptions;
+  mlir::ExecutionEngineOptions engineOptions;                            //BTBT 建一个MLIR执行引擎运行表达式中的main
   engineOptions.transformer = optPipeline;
   auto maybeEngine = mlir::ExecutionEngine::create(module, engineOptions);
   assert(maybeEngine && "failed to construct an execution engine");

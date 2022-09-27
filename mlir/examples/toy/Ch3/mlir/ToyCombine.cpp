@@ -41,7 +41,7 @@ struct SimplifyRedundantTranspose : public mlir::OpRewritePattern<TransposeOp> {
     // Look through the input of the current transpose.
     mlir::Value transposeInput = op.getOperand();
     TransposeOp transposeInputOp = transposeInput.getDefiningOp<TransposeOp>();
-
+    //BTBT 首先获取当前操作的操作数，然后判断当前位置的操作数对应的操作是否为转置，如果是就将表达式重写为内层转置操作的操作数，不然就不需要进行优化，保持现状
     // Input defined by another transpose? If not, no match.
     if (!transposeInputOp)
       return failure();
@@ -56,7 +56,7 @@ struct SimplifyRedundantTranspose : public mlir::OpRewritePattern<TransposeOp> {
 /// that they can be picked up by the Canonicalization framework.
 void TransposeOp::getCanonicalizationPatterns(RewritePatternSet &results,
                                               MLIRContext *context) {
-  results.add<SimplifyRedundantTranspose>(context);
+  results.add<SimplifyRedundantTranspose>(context);//BTBT 在归范化框架（Canonicalization Framework）中注册刚刚创建的匹配重写模式，使得框架可以调用它
 }
 
 /// Register our patterns as "canonicalization" patterns on the ReshapeOp so

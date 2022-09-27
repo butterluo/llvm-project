@@ -308,7 +308,7 @@ def ReturnOp : Toy_Op<"return", [NoSideEffect, HasParent<"FuncOp">,
 //===----------------------------------------------------------------------===//
 // TransposeOp
 //===----------------------------------------------------------------------===//
-
+//BTBT 将表达式重写规则添加到了规范化框架后，我们还需要修改一下定义Operator的td文件，启用规范化框架，同时在定义Operator添加一个“无副作用的”(NoSideEffect)新特征
 def TransposeOp : Toy_Op<"transpose", [NoSideEffect]> {
   let summary = "transpose operation";
 

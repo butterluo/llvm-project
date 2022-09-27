@@ -47,7 +47,9 @@ namespace {
 struct ShapeInferencePass
     : public mlir::PassWrapper<ShapeInferencePass, OperationPass<toy::FuncOp>> {
   MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ShapeInferencePass)
-
+//BTBT ShapeInferencePass继承了OperationPass<toy::FuncOp>，重写其runOnOperation()接口，实现Shape推断算法
+//首先会创建一个输出返回值为泛化Tensor的Operation列表，然后遍历列表寻找输入的操作数时类型确定的Tensor的Operarion，如果没有找到退出循环，
+//否则把该Operation从循环中删除并调用相应的inferShape()函数推断该Operation的输出返回Tensor的shape。如果Operation列表为空，则算法结束。
   void runOnOperation() override {
     auto f = getOperation();
 

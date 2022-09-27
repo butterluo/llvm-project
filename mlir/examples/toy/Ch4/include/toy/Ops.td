@@ -116,8 +116,8 @@ def AddOp : Toy_Op<"add",
 //===----------------------------------------------------------------------===//
 
 def CastOp : Toy_Op<"cast", [
-     DeclareOpInterfaceMethods<CastOpInterface>,
-     DeclareOpInterfaceMethods<ShapeInferenceOpInterface>,
+     DeclareOpInterfaceMethods<CastOpInterface>,//BTBT 这个特征说明程序会识别cast操作
+     DeclareOpInterfaceMethods<ShapeInferenceOpInterface>,//BTBT 在examples\toy\Ch4\include\toy\ShapeInferenceInterface.td定义的ShapeInferenceOpInterface特征
      NoSideEffect,
      SameOperandsAndResultShape
   ]> {
@@ -189,9 +189,9 @@ def FuncOp : Toy_Op<"func", [
 //===----------------------------------------------------------------------===//
 // GenericCallOp
 //===----------------------------------------------------------------------===//
-
+//BTBT 我们使用了DeclareOpInterfaceMethods在CallOpInterface的声明中声明所用的接口方法
 def GenericCallOp : Toy_Op<"generic_call",
-    [DeclareOpInterfaceMethods<CallOpInterface>]> {
+    [DeclareOpInterfaceMethods<CallOpInterface>]> {//BTBT CallOpInterface这个特征说明程序会识别generic_call操作（在原始的MLIR表达式中对应toy.generic_call），并在该位置调用接口函数。
   let summary = "generic call operation";
   let description = [{
     Generic calls represent calls to a user defined function that needs to

@@ -272,7 +272,7 @@ struct ReturnOpLowering : public OpRewritePattern<toy::ReturnOp> {
 // ToyToAffine RewritePatterns: Transpose operations
 //===----------------------------------------------------------------------===//
 
-struct TransposeOpLowering : public ConversionPattern {
+struct TransposeOpLowering : public ConversionPattern {                            //BTBT 采用ConversionPattern转换方式把toy.transpose转到affine dialect
   TransposeOpLowering(MLIRContext *ctx)
       : ConversionPattern(toy::TransposeOp::getOperationName(), 1, ctx) {}
 
@@ -323,14 +323,14 @@ struct ToyToAffineLoweringPass
 void ToyToAffineLoweringPass::runOnOperation() {
   // The first thing to define is the conversion target. This will define the
   // final target for this lowering.
-  ConversionTarget target(getContext());
+  ConversionTarget target(getContext());                                           //BTBT 定义转换的目标
 
   // We define the specific operations, or dialects, that are legal targets for
   // this lowering. In our case, we are lowering to a combination of the
   // `Affine`, `Arithmetic`, `Func`, and `MemRef` dialects.
-  target
-      .addLegalDialect<AffineDialect, BuiltinDialect, arith::ArithmeticDialect,
-                       func::FuncDialect, memref::MemRefDialect>();
+  target                                                                            //BTBT 定义在MLIR表达式Lowering的过程中合法的目标，包括特定的Operation或 Dialect，
+      .addLegalDialect<AffineDialect, BuiltinDialect, arith::ArithmeticDialect,     //在这个例子中，将MLIR表达式下降到由Affine、MemRef 和 Standard Dialect 三种Dialect下Operation的组合。
+                       func::FuncDialect, memref::MemRefDialect>();                 //所以在代码中使用target.addLegalDialect函数将这三个Dialect添加为合法的目标
 
   // We also define the Toy dialect as Illegal so that the conversion will fail
   // if any of these operations are *not* converted. Given that we actually want
@@ -339,23 +339,23 @@ void ToyToAffineLoweringPass::runOnOperation() {
   // to be updated though (as we convert from TensorType to MemRefType), so we
   // only treat it as `legal` if its operands are legal.
   target.addIllegalDialect<toy::ToyDialect>();
-  target.addDynamicallyLegalOp<toy::PrintOp>([](toy::PrintOp op) {
-    return llvm::none_of(op->getOperandTypes(),
-                         [](Type type) { return type.isa<TensorType>(); });
+  target.addDynamicallyLegalOp<toy::PrintOp>([](toy::PrintOp op) {                 //BTBT 定义之前的Toy Dialect为非法的目标，即target.addIllegalDialect<ToyDialect>()，
+    return llvm::none_of(op->getOperandTypes(),                                    //这就暗示如果转换结束MLIR表达式中还存在Toy的操作，则Lowering失败。
+                         [](Type type) { return type.isa<TensorType>(); });        //BTBT toy.print在新的目标Dialect中是不支持的，所以这里需要进行保留，不进行Lowering
   });
 
   // Now that the conversion target has been defined, we just need to provide
   // the set of patterns that will lower the Toy operations.
   RewritePatternSet patterns(&getContext());
   patterns.add<AddOpLowering, ConstantOpLowering, FuncOpLowering, MulOpLowering,
-               PrintOpLowering, ReturnOpLowering, TransposeOpLowering>(
+               PrintOpLowering, ReturnOpLowering, TransposeOpLowering>(            //BTBT 注册各个op的转换类(ConversionPattern的子类)
       &getContext());
 
   // With the target and rewrite patterns defined, we can now attempt the
   // conversion. The conversion will signal failure if any of our `illegal`
   // operations were not converted successfully.
   if (failed(
-          applyPartialConversion(getOperation(), target, std::move(patterns))))
+          applyPartialConversion(getOperation(), target, std::move(patterns))))  //BTBT 执行真正的Lowering过程了。DialectConversion框架提供了几种不同的Lowering模式，这里使用的是部分Lowering，因为这里不会对toy.print操作进行Lowering
     signalPassFailure();
 }
 

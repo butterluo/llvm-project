@@ -112,7 +112,7 @@ public:
   }
 
 private:
-  /// Return a symbol reference to the printf function, inserting it into the
+  /// Return a symbol reference to the printf function, inserting it into the  //BTBT 返回了printf函数的符号引用，必要时将其插入Module。在函数中，为printf创建了函数声明，然后将printf函数插入到父Module的主体中
   /// module if necessary.
   static FlatSymbolRefAttr getOrInsertPrintf(PatternRewriter &rewriter,
                                              ModuleOp module) {
@@ -185,15 +185,15 @@ void ToyToLLVMLoweringPass::runOnOperation() {
   // final target for this lowering. For this lowering, we are only targeting
   // the LLVM dialect.
   LLVMConversionTarget target(getContext());
-  target.addLegalOp<ModuleOp>();
+  target.addLegalOp<ModuleOp>();                                               //BTBT 除了顶层的Module将所有的内容都Lowering为LLVM Dialect。
 
   // During this lowering, we will also be lowering the MemRef types, that are
   // currently being operated on, to a representation in LLVM. To perform this
   // conversion we use a TypeConverter as part of the lowering. This converter
   // details how one type maps to another. This is necessary now that we will be
-  // doing more complicated lowerings, involving loop region arguments.
-  LLVMTypeConverter typeConverter(&getContext());
-
+  // doing more complicated lowerings, involving loop region arguments.      //BTBT 我们现存的MLIR表达式还有MemRef类型，我们需要将其转换为LLVM的类型。
+  LLVMTypeConverter typeConverter(&getContext());                            //为了执行这个转化，我们使用TypeConverter作为Lowering的一部分          
+                                                                             //这个转换器指定一种类型如何映射到另外一种类型。由于现存的操作中已经不存在任何Toy Dialect操作，因此使用MLIR默认的转换器就可以满足需求
   // Now that the conversion target has been defined, we need to provide the
   // patterns used for lowering. At this point of the compilation process, we
   // have a combination of `toy`, `affine`, and `std` operations. Luckily, there
@@ -202,7 +202,7 @@ void ToyToLLVMLoweringPass::runOnOperation() {
   // lowerings. Transitive lowering, or A->B->C lowering, is when multiple
   // patterns must be applied to fully transform an illegal operation into a
   // set of legal ones.
-  RewritePatternSet patterns(&getContext());
+  RewritePatternSet patterns(&getContext());                                //BTBT 注册转换模式(Conversion Patterns),这一段是注册非toy dialect相关的内置转换模式
   populateAffineToStdConversionPatterns(patterns);
   populateSCFToControlFlowConversionPatterns(patterns);
   mlir::arith::populateArithmeticToLLVMConversionPatterns(typeConverter,
@@ -213,12 +213,12 @@ void ToyToLLVMLoweringPass::runOnOperation() {
 
   // The only remaining operation to lower from the `toy` dialect, is the
   // PrintOp.
-  patterns.add<PrintOpLowering>(&getContext());
+  patterns.add<PrintOpLowering>(&getContext());                           //BTBT 注册top.print到llvm的转换
 
   // We want to completely lower to LLVM, so we use a `FullConversion`. This
   // ensures that only legal operations will remain after the conversion.
   auto module = getOperation();
-  if (failed(applyFullConversion(module, target, std::move(patterns))))
+  if (failed(applyFullConversion(module, target, std::move(patterns))))    //BTBT 执行完全Lowering
     signalPassFailure();
 }
 
