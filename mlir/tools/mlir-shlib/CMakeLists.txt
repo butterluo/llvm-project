@@ -43,7 +43,7 @@ if(LLVM_BUILD_LLVM_DYLIB)
     LINK_COMPONENTS
     ${mlir_llvm_link_components}
   )
-  target_link_libraries(MLIR PRIVATE ${LLVM_PTHREAD_LIB})
+  target_link_libraries(MLIR PRIVATE ${LLVM_PTHREAD_LIB} ${CUDA_DRIVER_LIBRARY})
 endif()
 
 #message("Libraries included in libMLIR.so: ${mlir_libs}")
